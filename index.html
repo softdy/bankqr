@@ -2,19 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/logo.a608dba9.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankQr - Ứng dụng Tạo mã QR Ngân hàng có sẵn số tiền</title>
+    <meta name="description" content="BankQr giúp bạn tạo mã QR ngân hàng có sẵn số tiền và nội dung chuyển khoản, mang lại sự tiện lợi và nhanh chóng cho mọi giao dịch.">
+    <meta name="keywords" content="BankQr, mã QR, chuyển tiền, ứng dụng ngân hàng, tạo mã QR kèm số tiền, lưu trữ mã QR, không cần internet">
+    <meta name="author" content="Softdy">
     <meta name="theme-color" content="#317EFB" />
-    <link rel="manifest" href="data:application/json;base64,ewogICAgIm5hbWUiOiAiQmFua1FyIiwKICAgICJzaG9ydF9uYW1lIjogIkJhbmtRciIsCiAgICAic3RhcnRfdXJsIjogIi8iLAogICAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZmZmZmZmIiwKICAgICJ0aGVtZV9jb2xvciI6ICIjMWUyOTNiIiwKICAgICJpY29ucyI6IFsKICAgICAgICB7CiAgICAgICAgICAgICJzcmMiOiAibG9nby5zdmciLAogICAgICAgICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAgICJzcmMiOiAibG9nby5zdmciLAogICAgICAgICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICAgICAgfQogICAgXQp9" />
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json" />
     <title>BankQr</title>
-    <script type="module" crossorigin src="/assets/index.616c48e4.js"></script>
-    <link rel="modulepreload" href="/assets/react-venders.fdd7a765.js">
-    <link rel="stylesheet" href="/assets/index.4780111f.css">
+    <script type="module" crossorigin src="/assets/index.0434655e.js"></script>
+    <link rel="modulepreload" href="/assets/react-venders.967e8503.js">
+    <link rel="stylesheet" href="/assets/index-fc8b65f7.css">
   </head>
   <body style="margin: 0">
     <div id="root"></div>
     
     <script>
+      let isUpdating = false;
       const urlParams = new URLSearchParams(window.location.search)
       const isDebug = urlParams.get('debug')
       if (isDebug == 'true') {
@@ -64,13 +69,31 @@
                     newWorker.state === 'installed' &&
                     navigator.serviceWorker.controller
                   ) {
+                  newWorker.postMessage({
+                    action: 'removeOldCache',
+                    host: window.location.href // Truyền URL của trang hiện tại
+                  });
+                  newWorker.postMessage({ action: 'updateCache' })
+                  	if (!window.isUpdating) {
+                  	 isUpdating = true; // Đánh dấu đang cập nhật
                     // Nếu có bản cập nhật, yêu cầu cập nhật cache
-                    newWorker.postMessage({ action: 'updateCache' })
+                    
                     newWorker.postMessage('skipWaiting') // Bỏ qua và sử dụng worker mới
-                    location.reload()
+                     setTimeout(() => {
+                  		location.reload(); // Tải lại sau một thời gian
+                	}, 5000); // Thay đổi khoảng thời gian nếu cần
+                  	}
                   }
                 }
               }
+
+              document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                  // Khi trang quay lại foreground, kiểm tra và cập nhật Service Worker
+                  console.log('Page is visible, checking for updates...');
+                  registration.update(); // Yêu cầu kiểm tra bản cập nhật của Service Worker
+                }
+              });
             })
             .catch((error) => {
               if (window.isDebug) {
