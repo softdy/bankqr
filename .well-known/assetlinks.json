@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.softdy.bankqr",
+      "sha256_cert_fingerprints":
+        ["8E:59:EB:4E:97:18:0B:0E:50:43:65:61:6F:99:C0:74:32:05:1D:B4:C7:E6:9D:43:50:78:C5:1A:BE:5B:70:0C"]
+    }
+  }
+]
